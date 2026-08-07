@@ -1,0 +1,85 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}评论 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}评论管理{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">评论管理</h1>
+        <p class="page-sub">共 {{ page_obj.paginator.count }} 条评论。</p>
+    </div>
+</section>
+
+<form class="filter-bar" method="get" action="{% url 'manage:comment_list' %}">
+    <input type="search" name="q" value="{{ q }}" class="form-input" placeholder="搜索昵称、内容或文章……" autocomplete="off">
+    <select name="status" class="form-input">
+        <option value="">全部状态</option>
+        <option value="approved" {% if status == 'approved' %}selected{% endif %}>已审核</option>
+        <option value="pending" {% if status == 'pending' %}selected{% endif %}>待审核</option>
+    </select>
+    <button type="submit" class="btn btn-ghost btn-sm">筛选</button>
+    {% if q or status %}<a href="{% url 'manage:comment_list' %}" class="btn btn-link btn-sm">清空</a>{% endif %}
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="col-author">评论人</th>
+                <th>内容</th>
+                <th>所属文章</th>
+                <th class="col-state">状态</th>
+                <th class="col-time">时间</th>
+                <th class="col-ops">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in page_obj %}
+            <tr>
+                <td class="col-author">
+                    <div class="comment-author">{{ c.author }}</div>
+                    <div class="comment-email text-mute mono">{{ c.email }}</div>
+                </td>
+                <td class="comment-content">{{ c.content|truncatechars:80 }}</td>
+                <td>
+                    {% if c.post %}
+                    <a href="{% url 'blog:post_detail' c.post.slug %}" target="_blank" class="row-title">
+                        {{ c.post.title|truncatechars:20 }}
+                    </a>
+                    {% else %}
+                    <span class="text-mute">—</span>
+                    {% endif %}
+                </td>
+                <td class="col-state">
+                    {% if c.is_approved %}
+                    <span class="badge badge-ok">已审核</span>
+                    {% else %}
+                    <span class="badge badge-warn">待审核</span>
+                    {% endif %}
+                </td>
+                <td class="col-time text-mute">{{ c.created_time|date:'Y-m-d H:i' }}</td>
+                <td class="col-ops">
+                    <form method="post" action="{% url 'manage:comment_toggle_approve' c.pk %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm">
+                            {% if c.is_approved %}取消审核{% else %}通过审核{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'manage:comment_delete' c.pk %}" class="inline-form"
+                          data-confirm="确定删除该评论吗?">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty-row">没有匹配的评论。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'manage/_pagination.html' %}
+{% endblock %}

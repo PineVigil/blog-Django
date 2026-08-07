@@ -1,0 +1,62 @@
+{% extends 'manage/base.html' %}
+{% load static %}
+
+{% block title %}关于页 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}关于页{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">关于页</h1>
+        <p class="page-sub">
+            编辑前台 <code>/about/</code> 页面的正文内容,支持 Markdown。留空则显示模板内置的默认关于页。
+        </p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'blog:about' %}" target="_blank" class="btn btn-ghost btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            前台预览
+        </a>
+    </div>
+</section>
+
+<form method="post" class="post-form">
+    {% csrf_token %}
+
+    <div class="form-grid">
+        <div class="form-main">
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>关于页正文</h2>
+                    <span class="panel-hint">支持 Markdown:标题、列表、引用、链接、代码块。</span>
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_about_markdown">{{ form.about_markdown.label }}</label>
+                    {{ form.about_markdown }}
+                    {% if form.about_markdown.help_text %}
+                    <div class="field-help">{{ form.about_markdown.help_text }}</div>
+                    {% endif %}
+                    {% if form.about_markdown.errors %}
+                    <div class="field-error">{% for e in form.about_markdown.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="card form-submit-card sticky">
+                <div class="submit-head">
+                    <h3>保存</h3>
+                    <span class="panel-hint">保存后前台 /about/ 立即生效。</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    保存并生效
+                </button>
+                <a href="{% url 'manage:dashboard' %}" class="btn btn-ghost btn-block">返回仪表盘</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

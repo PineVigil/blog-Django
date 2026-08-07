@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索:{{ query }} · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container content">
+<header class="page-header">
+    <h1 class="page-title">搜索</h1>
+    <form class="search-form" action="{% url 'blog:search' %}" method="get">
+        <input type="search" name="q" value="{{ query }}" placeholder="搜索文章……" autofocus autocomplete="off">
+        <button type="submit" class="btn-submit">搜索</button>
+    </form>
+</header>
+
+{% if query %}
+    {% if page_obj %}
+    <p class="search-summary">找到与「{{ query }}」相关的 {{ page_obj.paginator.count }} 篇文章:</p>
+    <ul class="post-list">
+        {% for post in page_obj %}
+        <li class="post-item">
+            <article class="post-card">
+                <header class="post-card-header">
+                    <h2 class="post-card-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+                    <div class="post-meta">
+                        <time>{{ post.published_time|date:'Y-m-d' }}</time>
+                        {% if post.category %}<span class="sep">·</span><a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+                    </div>
+                </header>
+                <p class="post-card-excerpt">{{ post.excerpt }}</p>
+                <a class="read-more" href="{{ post.get_absolute_url }}">阅读全文 →</a>
+            </article>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="pagination" aria-label="分页">
+        {% if page_obj.has_previous %}
+            <a class="page-link" href="?q={{ query|urlencode }}&amp;page={{ page_obj.previous_page_number }}">← 上一页</a>
+        {% else %}
+            <span class="page-link disabled">← 上一页</span>
+        {% endif %}
+        <span class="page-info">第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>
+        {% if page_obj.has_next %}
+            <a class="page-link" href="?q={{ query|urlencode }}&amp;page={{ page_obj.next_page_number }}">下一页 →</a>
+        {% else %}
+            <span class="page-link disabled">下一页 →</span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <h2>没有找到结果</h2>
+        <p>没有与「{{ query }}」相关的文章,换个关键词试试?</p>
+    </div>
+    {% endif %}
+{% else %}
+<p class="search-hint">在上方输入关键词,开始搜索。</p>
+{% endif %}
+</div>
+{% endblock %}

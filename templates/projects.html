@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}项目 · {{ SITE_NAME }}{% endblock %}
+
+{% block description %}折腾过的一些小项目与工具,按分类收录。{% endblock %}
+
+{% block content %}
+<div class="container content">
+{% if groups %}
+<div class="projects-groups">
+    {% for cat, items in groups %}
+    <section class="project-group">
+        <h2 class="project-group-title">
+            <span class="project-group-name">{{ cat.name|default:'未分类' }}</span>
+            <span class="project-group-count">{{ items|length }}</span>
+        </h2>
+        <ul class="project-list">
+            {% for p in items %}
+            <li class="project-item">
+                {% if p.cover %}
+                <a class="project-item-cover" href="{{ p.url }}" target="_blank" rel="noopener" aria-label="{{ p.name }}">
+                    <img src="{{ p.cover.url }}" alt="{{ p.name }}" loading="lazy">
+                </a>
+                {% else %}
+                <a class="project-item-cover project-item-logo" href="{{ p.url }}" target="_blank" rel="noopener" aria-label="{{ p.name }}">
+                    <span>{{ p.name|slice:':1' }}</span>
+                </a>
+                {% endif %}
+                <div class="project-item-body">
+                    <h3 class="project-item-title">
+                        <a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.name }}</a>
+                    </h3>
+                    {% if p.description %}
+                    <p class="project-item-desc">{{ p.description }}</p>
+                    {% endif %}
+                </div>
+                <a class="project-item-link" href="{{ p.url }}" target="_blank" rel="noopener">
+                    <span>查看项目</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>暂无项目</h2>
+    <p>项目整理中,稍后再来看看。</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

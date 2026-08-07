@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}文章 · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container content">
+<header class="page-header">
+    <h1 class="page-title">文章</h1>
+    <p class="page-subtitle">共 {{ total_count }} 篇文章</p>
+</header>
+
+{% if categories %}
+<section class="archive-cats" aria-label="分类浏览">
+    <div class="archive-cats-head">
+        <span class="archive-cats-label">按分类浏览 »</span>
+        <a class="archive-cats-all" href="{% url 'blog:category_list' %}">全部分类 →</a>
+    </div>
+    <div class="archive-cats-row">
+        {% for cat in categories %}
+        <a class="archive-cat-chip" href="{{ cat.get_absolute_url }}">
+            <span class="archive-cat-name">{{ cat.name }}</span>
+            <span class="archive-cat-count">{{ cat.post_count }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if archive_map %}
+<div class="archive">
+    {% for year, posts in archive_map.items %}
+    <section class="archive-year">
+        <h2 class="archive-year-title">{{ year }} <span class="archive-year-count">({{ posts|length }})</span></h2>
+        <ul class="archive-list">
+            {% for post in posts %}
+            <li class="archive-item">
+                <time class="archive-date" datetime="{{ post.published_time|date:'c' }}">
+                    <b>{{ post.published_time|date:'d' }}</b>
+                    <span class="archive-date-m">{{ post.published_time|date:'n' }}月</span>
+                </time>
+                <div class="archive-main">
+                    <h3 class="archive-title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+                    <div class="post-meta archive-meta">
+                        <time datetime="{{ post.published_time|date:'c' }}">{{ post.published_time|date:'Y-m-d' }}</time>
+                        {% if post.category %}<span class="sep">·</span><a class="meta-cat" href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+                        <span class="sep">·</span><span>{{ post.views }} 阅读</span>
+                    </div>
+                </div>
+                {% if post.category %}<span class="archive-cat">{{ post.category.name }}</span>{% endif %}
+                <a class="archive-item-cover" href="{{ post.get_absolute_url }}" aria-label="阅读全文" tabindex="-1"></a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>暂无文章</h2>
+    <p>这里还没有内容,稍后再来看看。</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

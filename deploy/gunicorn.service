@@ -1,0 +1,30 @@
+[Unit]
+Description=toflower blog · Gunicorn WSGI Service
+After=network.target mysql.service
+
+[Service]
+Type=notify
+User=toflower
+Group=www-data
+WorkingDirectory=/var/www/toflower_blog
+EnvironmentFile=/var/www/toflower_blog/.env
+Environment=DJANGO_SETTINGS_MODULE=toflower_blog.settings
+Environment=PYTHONPATH=/var/www/toflower_blog:/var/www/toflower_blog/venv/lib/python3.11/site-packages
+ExecStart=/var/www/toflower_blog/venv/bin/gunicorn \
+          --config /var/www/toflower_blog/deploy/gunicorn_config.py \
+          toflower_blog.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+# 资源限制
+LimitNOFILE=65536
+
+# 沙箱(可选,更安全)
+# ProtectSystem=full
+# PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

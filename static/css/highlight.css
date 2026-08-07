@@ -1,0 +1,180 @@
+/* ============================================================
+   代码高亮 · GitHub 风格 (GitHub Light + GitHub Dark)
+   跟随 [data-theme] 切换, 去除 macOS 窗口装饰
+   参考 github/linguist + highlight.js/github-theme
+   ============================================================ */
+
+.highlight {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 1.6em 0;
+    font-size: .85rem;
+    line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    position: relative;
+    color: #24292f;
+}
+.highlight::before, .highlight::after { display: none !important; }
+.highlight pre { background: none; padding: 0; margin: 0; border: none; }
+.highlight code {
+    background: none; color: inherit; padding: 0;
+    font-family: inherit;
+}
+
+/* ---------- GitHub Light token 配色 ---------- */
+
+.highlight .c, .highlight .cm, .highlight .c1, .highlight .cs,
+.highlight .sd { color: #6e7781; font-style: italic; }
+
+.highlight .k, .highlight .kc, .highlight .kd, .highlight .kp, .highlight .kr,
+.highlight .kt, .highlight .ow {
+    color: #cf222e;
+}
+.highlight .o { color: #24292f; }
+.highlight .err { color: #82071e; background: rgba(226, 51, 65, 0.08); }
+
+.highlight .n, .highlight .p, .highlight .nx { color: #24292f; }
+
+.highlight .na, .highlight .nb, .highlight .bp, .highlight .ni, .highlight .nc, .highlight .nn, .highlight .ne {
+    color: #953800;
+}
+.highlight .nc, .highlight .nn, .highlight .ne { font-weight: 600; }
+.highlight .nf, .highlight .fm { color: #8250df; }
+.highlight .nd { color: #8250df; }
+
+.highlight .no, .highlight .nv, .highlight .vc, .highlight .vg, .highlight .vi,
+.highlight .py, .highlight .nl {
+    color: #0550ae;
+}
+
+.highlight .nt { color: #116329; }
+
+.highlight .s, .highlight .sb, .highlight .s2, .highlight .si, .highlight .sx,
+.highlight .s1, .highlight .ss, .highlight .se, .highlight .sh, .highlight .sc, .highlight .sa {
+    color: #0a3069;
+}
+.highlight .sr { color: #0a3069; }
+
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo,
+.highlight .il, .highlight .l, .highlight .ld, .highlight .mb, .highlight .mx {
+    color: #0550ae;
+}
+
+.highlight .gd { color: #82071e; background: rgba(255, 213, 217, 0.5); }
+.highlight .gi { color: #116329; background: rgba(210, 255, 221, 0.5); }
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: 700; }
+.highlight .gh, .highlight .gu { color: #6e7781; font-weight: 700; }
+.highlight .gp { color: #8250df; font-weight: 600; }
+.highlight .w { color: #eaeef2; }
+.highlight .x { color: inherit; }
+
+/* 行号 (codehilite 行内) */
+.highlight .lineno {
+    color: #8c959f; padding-right: 14px; user-select: none;
+    border-right: 1px solid #d0d7de;
+    margin-right: 14px;
+}
+
+/* ---------- highlighttable 带行号版本 ---------- */
+.highlighttable {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    margin: 1.6em 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #d0d7de;
+    background: #f6f8fa;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: .85rem; line-height: 1.6;
+    color: #24292f;
+}
+.highlighttable::before, .highlighttable::after { display: none !important; }
+.highlighttable td { padding: 0; border: none; vertical-align: top; }
+.highlighttable .linenos {
+    background: #f6f8fa; color: #8c959f;
+    padding: 16px 12px 16px 14px; text-align: right;
+    border-right: 1px solid #d0d7de;
+    user-select: none; width: 1%; white-space: nowrap;
+}
+.highlighttable .code { width: 100%; background: #f6f8fa; }
+.highlighttable .code .highlight {
+    border: none; border-radius: 0; margin: 0; padding: 16px;
+}
+.highlighttable .code .highlight::before,
+.highlighttable .code .highlight::after { display: none; }
+
+/* ============================================================
+   GitHub Dark 主题 (data-theme=dark)
+   ============================================================ */
+[data-theme="dark"] .highlight,
+[data-theme="dark"] .highlighttable,
+[data-theme="dark"] .highlighttable .code,
+[data-theme="dark"] .highlighttable .linenos {
+    background: #161b22;
+    border-color: #30363d;
+    color: #c9d1d9;
+}
+[data-theme="dark"] .highlighttable { border: 1px solid #30363d; }
+[data-theme="dark"] .highlighttable .linenos {
+    color: #6e7681;
+    border-right-color: #30363d;
+}
+[data-theme="dark"] .highlight .lineno {
+    color: #6e7681;
+    border-right-color: #30363d;
+}
+
+[data-theme="dark"] .highlight .c, [data-theme="dark"] .highlight .cm,
+[data-theme="dark"] .highlight .c1, [data-theme="dark"] .highlight .cs,
+[data-theme="dark"] .highlight .sd { color: #8b949e; }
+
+[data-theme="dark"] .highlight .k, [data-theme="dark"] .highlight .kc,
+[data-theme="dark"] .highlight .kd, [data-theme="dark"] .highlight .kp,
+[data-theme="dark"] .highlight .kr, [data-theme="dark"] .highlight .kt,
+[data-theme="dark"] .highlight .ow { color: #ff7b72; }
+[data-theme="dark"] .highlight .o { color: #c9d1d9; }
+[data-theme="dark"] .highlight .err { color: #ffa198; background: rgba(248, 81, 73, 0.1); }
+
+[data-theme="dark"] .highlight .n, [data-theme="dark"] .highlight .p,
+[data-theme="dark"] .highlight .nx { color: #c9d1d9; }
+
+[data-theme="dark"] .highlight .na, [data-theme="dark"] .highlight .nb,
+[data-theme="dark"] .highlight .bp, [data-theme="dark"] .highlight .ni,
+[data-theme="dark"] .highlight .nc, [data-theme="dark"] .highlight .nn,
+[data-theme="dark"] .highlight .ne { color: #ffa657; }
+
+[data-theme="dark"] .highlight .nf, [data-theme="dark"] .highlight .fm,
+[data-theme="dark"] .highlight .nd { color: #d2a8ff; }
+
+[data-theme="dark"] .highlight .no, [data-theme="dark"] .highlight .nv,
+[data-theme="dark"] .highlight .vc, [data-theme="dark"] .highlight .vg,
+[data-theme="dark"] .highlight .vi, [data-theme="dark"] .highlight .py,
+[data-theme="dark"] .highlight .nl { color: #79c0ff; }
+
+[data-theme="dark"] .highlight .nt { color: #7ee787; }
+
+[data-theme="dark"] .highlight .s, [data-theme="dark"] .highlight .sb,
+[data-theme="dark"] .highlight .s2, [data-theme="dark"] .highlight .si,
+[data-theme="dark"] .highlight .sx, [data-theme="dark"] .highlight .s1,
+[data-theme="dark"] .highlight .ss, [data-theme="dark"] .highlight .se,
+[data-theme="dark"] .highlight .sh, [data-theme="dark"] .highlight .sc,
+[data-theme="dark"] .highlight .sa, [data-theme="dark"] .highlight .sr {
+    color: #a5d6ff;
+}
+
+[data-theme="dark"] .highlight .m, [data-theme="dark"] .highlight .mf,
+[data-theme="dark"] .highlight .mh, [data-theme="dark"] .highlight .mi,
+[data-theme="dark"] .highlight .mo, [data-theme="dark"] .highlight .il,
+[data-theme="dark"] .highlight .l, [data-theme="dark"] .highlight .ld,
+[data-theme="dark"] .highlight .mb, [data-theme="dark"] .highlight .mx {
+    color: #79c0ff;
+}
+
+[data-theme="dark"] .highlight .gd { color: #ffa198; background: rgba(248, 81, 73, 0.12); }
+[data-theme="dark"] .highlight .gi { color: #aff5b4; background: rgba(63, 185, 80, 0.12); }
+[data-theme="dark"] .highlight .gh, [data-theme="dark"] .highlight .gu { color: #8b949e; }
+[data-theme="dark"] .highlight .gp { color: #d2a8ff; }
+[data-theme="dark"] .highlight .w { color: #30363d; }

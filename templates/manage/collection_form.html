@@ -1,0 +1,272 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}{{ form_title }} · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">{{ form_title }}</h1>
+        <a href="{% url 'manage:collection_list' %}" class="back-link">← 返回合集列表</a>
+    </div>
+    {% if obj %}
+    <div class="page-actions">
+        <a href="{{ obj.get_absolute_url }}" target="_blank" class="btn btn-ghost btn-sm">前台预览</a>
+    </div>
+    {% endif %}
+</section>
+
+<form method="post" enctype="multipart/form-data" class="post-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid">
+        <div class="form-main">
+            <div class="card panel">
+                <div class="panel-head">
+                    <h2>基本信息</h2>
+                    <span class="panel-hint">合集名会出现在合集列表页、合集详情页标题及面包屑。</span>
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }} <em>*</em></label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<span class="field-error">{{ form.name.errors|join:'; ' }}</span>{% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+                    {{ form.slug }}
+                    {% if form.slug.help_text %}<span class="field-help">{{ form.slug.help_text }}</span>{% endif %}
+                    {% if form.slug.errors %}<span class="field-error">{{ form.slug.errors|join:'; ' }}</span>{% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.help_text %}<span class="field-help">{{ form.description.help_text }}</span>{% endif %}
+                    {% if form.description.errors %}<span class="field-error">{{ form.description.errors|join:'; ' }}</span>{% endif %}
+                </div>
+            </div>
+
+            {% if related_posts %}
+            <div class="card panel">
+                <div class="panel-head">
+                    <h2>旗下文章({{ related_posts|length }}篇)</h2>
+                    <span class="panel-hint">拖动行可调整阅读顺序, 松开自动保存。</span>
+                </div>
+                <table class="data-table compact" id="relatedPostsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">序</th>
+                            <th>标题</th>
+                            <th style="width:100px;">分类</th>
+                            <th style="width:120px;">发布时间</th>
+                            <th style="width:100px;">状态</th>
+                            <th style="width:80px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in related_posts %}
+                        <tr data-post-id="{{ post.pk }}" draggable="true">
+                            <td><strong class="seq-num">{{ forloop.counter }}</strong></td>
+                            <td><a href="{% url 'manage:post_update' post.pk %}" class="row-title">{{ post.title }}</a></td>
+                            <td class="text-mute">{{ post.category|default:'—' }}</td>
+                            <td class="text-mute">{{ post.published_time|date:'Y-m-d' }}</td>
+                            <td>
+                                {% if post.is_published %}<span class="badge badge-ok">已发</span>{% else %}<span class="badge badge-draft">草稿</span>{% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'manage:post_update' post.pk %}" class="btn btn-link btn-sm">编辑</a>
+                                <button type="submit" form="remove-post-{{ post.pk }}" class="btn btn-link btn-sm danger">移出</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div id="reorderStatus" style="margin-top:10px;font-size:.85rem;color:var(--text-mute);opacity:0;transition:opacity .3s;"></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-side">
+            <div class="card form-submit-card sticky">
+                <div class="submit-head">
+                    <h3>保存 & 发布</h3>
+                </div>
+                <label class="check-line">
+                    {{ form.is_published }}
+                    <span>{{ form.is_published.label }}</span>
+                </label>
+                {% if form.is_published.help_text %}<span class="field-help">{{ form.is_published.help_text }}</span>{% endif %}
+                <button type="submit" class="btn btn-primary btn-block">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    保存
+                </button>
+                <a href="{% url 'manage:collection_list' %}" class="btn btn-ghost btn-block">取消</a>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">合集封面</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
+                    {{ form.cover }}
+                    {% if obj and obj.cover %}
+                    <img src="{{ obj.cover.url }}" alt="" class="cover-preview" style="max-height:180px;">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if obj %}
+<!-- 添加文章到合集: 放在主表单之外, 避免 form 嵌套 -->
+<div class="card panel" style="margin-top:20px;">
+    <div class="panel-head">
+        <h2>添加文章到合集</h2>
+        <span class="panel-hint">选择未加入本合集的文章加入, 会排在合集末尾。</span>
+    </div>
+    <form method="get" class="filter-bar" style="margin-bottom:14px;">
+        <input type="search" name="q_add" value="{{ q_add }}" class="form-input" placeholder="搜索文章标题…">
+        <button type="submit" class="btn btn-ghost btn-sm">搜索</button>
+        {% if q_add %}<a href="{% url 'manage:collection_update' obj.pk %}" class="btn btn-link btn-sm">清空</a>{% endif %}
+    </form>
+    {% if q_add %}
+        {% if available_posts %}
+        <table class="data-table compact">
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th style="width:100px;">分类</th>
+                    <th style="width:120px;">发布时间</th>
+                    <th style="width:60px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in available_posts %}
+                <tr>
+                    <td><a href="{% url 'manage:post_update' post.pk %}" class="row-title">{{ post.title }}</a></td>
+                    <td class="text-mute">{{ post.category|default:'—' }}</td>
+                    <td class="text-mute">{{ post.published_time|date:'Y-m-d' }}</td>
+                    <td>
+                        <form method="post" action="{% url 'manage:collection_add_post' obj.pk post.pk %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm">添加</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-mute" style="margin:0;">未找到匹配的文章。</p>
+        {% endif %}
+    {% else %}
+    <p class="text-mute" style="margin:0;">输入关键词搜索文章, 找到后点击「添加」加入合集。</p>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- 移出合集表单: 必须放在外层表单之外(HTML 禁止 form 嵌套), 用 form 属性关联表格里的按钮 -->
+{% for post in related_posts %}
+<form id="remove-post-{{ post.pk }}" method="post" action="{% url 'manage:collection_remove_post' obj.pk post.pk %}" data-confirm="确定把《{{ post.title }}》移出合集吗?文章不会被删除。">
+    {% csrf_token %}
+</form>
+{% endfor %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if obj and related_posts %}
+<script>
+(function () {
+    var table = document.getElementById('relatedPostsTable');
+    if (!table) return;
+    var tbody = table.tBodies[0];
+    var status = document.getElementById('reorderStatus');
+    var url = "{% url 'manage:collection_reorder' obj.pk %}";
+    var dragging = null;
+
+    // 插入位置指示线(随拖拽移动)
+    var indicator = document.createElement('tr');
+    indicator.className = 'drop-indicator';
+    indicator.innerHTML = '<td colspan="6"><div class="drop-line"></div></td>';
+
+    function getCookie(name) {
+        var m = document.cookie.match(new RegExp('(^|;\\s*)' + name + '=([^;]*)'));
+        return m ? decodeURIComponent(m[2]) : '';
+    }
+    function rows() {
+        return tbody.querySelectorAll('tr:not(.drop-indicator)');
+    }
+    function refreshNumbers() {
+        var list = rows();
+        for (var i = 0; i < list.length; i++) {
+            var n = list[i].querySelector('.seq-num');
+            if (n) n.textContent = i + 1;
+        }
+    }
+    function removeIndicator() {
+        if (indicator.parentNode) indicator.parentNode.removeChild(indicator);
+    }
+    function flash(msg) {
+        if (!status) return;
+        status.textContent = msg;
+        status.style.opacity = '1';
+        clearTimeout(flash._t);
+        flash._t = setTimeout(function () { status.style.opacity = '0'; }, 1600);
+    }
+    function saveOrder() {
+        removeIndicator();
+        var list = rows();
+        var ids = [];
+        for (var i = 0; i < list.length; i++) ids.push(list[i].getAttribute('data-post-id'));
+        if (!ids.length) return;
+        var fd = new FormData();
+        for (var j = 0; j < ids.length; j++) fd.append('post_ids', ids[j]);
+        fetch(url, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: fd,
+            credentials: 'same-origin'
+        }).then(function (r) { return r.json(); })
+          .then(function () { flash('✓ 顺序已保存'); })
+          .catch(function () { flash('✗ 保存失败, 请重试'); });
+    }
+    tbody.addEventListener('dragstart', function (e) {
+        dragging = e.target.closest('tr');
+        if (!dragging || dragging.classList.contains('drop-indicator')) return;
+        dragging.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', ''); } catch (err) {}
+    });
+    tbody.addEventListener('dragend', function () {
+        if (dragging) dragging.classList.remove('dragging');
+        dragging = null;
+        removeIndicator();
+        saveOrder();
+    });
+    tbody.addEventListener('dragleave', function (e) {
+        if (!tbody.contains(e.relatedTarget)) removeIndicator();
+    });
+    tbody.addEventListener('dragover', function (e) {
+        if (!dragging) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        var target = e.target.closest('tr');
+        if (!target || target === dragging || target.classList.contains('drop-indicator')) return;
+        var rect = target.getBoundingClientRect();
+        var after = (e.clientY - rect.top) > (rect.height / 2);
+        if (after) {
+            target.after(dragging);   // 拖动行移到目标行之后
+            target.after(indicator);  // 指示线在两者之间
+        } else {
+            target.before(dragging);  // 拖动行移到目标行之前
+            target.before(indicator); // 指示线在两者之间
+        }
+        refreshNumbers();
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

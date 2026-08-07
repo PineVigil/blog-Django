@@ -1,0 +1,47 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}{{ form_title }} · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">{{ form_title }}</h1>
+        <a href="{% url 'manage:project_category_list' %}" class="back-link">← 返回项目分类列表</a>
+    </div>
+</section>
+
+<form method="post" class="simple-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-row">
+        <div class="field form-col">
+            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+            {{ form.name }}
+            {% if form.name.errors %}<span class="field-error">{{ form.name.errors|join:'; ' }}</span>{% endif %}
+        </div>
+        <div class="field form-col">
+            <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+            {{ form.slug }}
+            {% if form.slug.help_text %}<span class="field-help">{{ form.slug.help_text }}</span>{% endif %}
+            {% if form.slug.errors %}<span class="field-error">{{ form.slug.errors|join:'; ' }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="form-label" for="{{ form.sort_order.id_for_label }}">{{ form.sort_order.label }}</label>
+        {{ form.sort_order }}
+        {% if form.sort_order.help_text %}<span class="field-help">{{ form.sort_order.help_text }}</span>{% endif %}
+        {% if form.sort_order.errors %}<span class="field-error">{{ form.sort_order.errors|join:'; ' }}</span>{% endif %}
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="{% url 'manage:project_category_list' %}" class="btn btn-ghost">取消</a>
+    </div>
+</form>
+{% endblock %}

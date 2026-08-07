@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}合集 · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container content">
+<header class="page-header">
+    <h1 class="page-title">合集</h1>
+    <p class="page-subtitle">系列化的主题文章 · 共 {{ collections|length }} 个合集</p>
+</header>
+
+{% if collections %}
+<ul class="collection-list">
+    {% for col in collections %}
+    <li class="collection-list-item">
+        <div class="collection-list-num">{{ forloop.counter|stringformat:"02d" }}</div>
+        {% if col.cover %}
+        <a class="collection-list-cover" href="{{ col.get_absolute_url }}" aria-label="{{ col.name }}">
+            <img src="{{ col.cover.url }}" alt="{{ col.name }}" loading="lazy">
+        </a>
+        {% endif %}
+        <div class="collection-list-body">
+            <h2 class="collection-list-title">
+                <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+            </h2>
+            <div class="post-meta">
+                <span>{{ col.post_count }} 篇文章</span>
+                <span class="sep">·</span>
+                <time datetime="{{ col.modified_time|date:'c' }}">更新 {{ col.modified_time|date:'Y-m-d' }}</time>
+            </div>
+            {% if col.description %}
+            <p class="collection-list-desc">{{ col.description }}</p>
+            {% endif %}
+        </div>
+        <a class="collection-list-enter" href="{{ col.get_absolute_url }}" aria-label="进入合集">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+        <a class="collection-item-cover" href="{{ col.get_absolute_url }}" aria-label="{{ col.name }}" tabindex="-1"></a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="empty-state">
+    <h2>暂无合集</h2>
+    <p>还没有创建任何合集,稍后再来看看。</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

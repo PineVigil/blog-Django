@@ -1,0 +1,24 @@
+# toflower blog · Python 依赖
+# Python 3.11.9 + Django 5.2 LTS
+
+# Web 框架
+Django==5.2
+
+# Markdown 渲染(含 codehilite 代码高亮扩展)
+markdown>=3.6
+
+# 图片处理(Post.cover ImageField)
+Pillow>=10.3
+
+# MySQL 驱动(纯 Python,无需编译,Windows 友好)
+PyMySQL>=1.1
+cryptography>=42.0   # PyMySQL 用于 caching_sha2_password 认证
+
+# 环境变量加载(.env)
+python-dotenv>=1.0
+
+# 生产部署 WSGI 服务器
+gunicorn>=22.0
+
+# 可选:开发期调试工具
+# django-debug-toolbar>=4.4

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}404 · 页面未找到 · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="container content">
+<div class="empty-state error-state">
+    <h1 class="error-code">404</h1>
+    <h2>页面未找到</h2>
+    <p>你访问的页面不存在或已被移除。</p>
+    <p><a href="{% url 'blog:index' %}">← 返回首页</a></p>
+</div>
+</div>
+{% endblock %}

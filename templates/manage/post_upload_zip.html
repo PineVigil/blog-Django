@@ -1,0 +1,148 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}上传 .zip 压缩包 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}上传 .zip 创建文章{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">上传 .zip 压缩包创建文章</h1>
+        <p class="page-sub">zip 内含 .md + 引用的资源(图片/Word/PDF)。本地相对路径自动改写为站内 URL,外链保留。</p>
+        <a href="{% url 'manage:post_list' %}" class="back-link">← 返回文章列表</a>
+    </div>
+</section>
+
+<div class="callout">
+    <strong>zip 结构示例:</strong>
+    <pre class="code-block">my-post.zip
+├── my-post.md          <span class="text-mute"># ![](images/cover.jpg)  [文档](files/a.pdf)</span>
+├── images/
+│   └── cover.jpg
+└── files/
+    └── a.pdf</pre>
+    <span class="field-help">标题取 md 首行 H1 或文件名;资源解压到 media/post_assets/&lt;文章ID&gt;/;删除文章时同步清理。</span>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="post-form upload-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid">
+        <div class="form-main">
+            <div class="field">
+                <label class="form-label" for="{{ form.zip_file.id_for_label }}">{{ form.zip_file.label }}</label>
+                <div class="drop-zone" id="dropZone">
+                    {{ form.zip_file }}
+                    <div class="drop-zone-hint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>点击选择 .zip 文件,或拖拽到此处</span>
+                        <small>{{ form.zip_file.help_text }}</small>
+                    </div>
+                </div>
+                {% if form.zip_file.errors %}<span class="field-error">{{ form.zip_file.errors|join:'; ' }}</span>{% endif %}
+            </div>
+
+            <div class="upload-switch">
+                <span class="text-mute">md 里只有外链?试试</span>
+                <a href="{% url 'manage:post_upload_md' %}" class="btn btn-link btn-sm">单 .md 上传</a>
+            </div>
+        </div>
+
+        <aside class="form-side">
+            <div class="side-card">
+                <h3 class="side-title">发布设置</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.published_time.id_for_label }}">{{ form.published_time.label }}</label>
+                    {{ form.published_time }}
+                </div>
+                <label class="check-line">
+                    {{ form.is_published }}
+                    <span>{{ form.is_published.label }}</span>
+                </label>
+                <label class="check-line">
+                    {{ form.is_pinned }}
+                    <span>{{ form.is_pinned.label }}</span>
+                </label>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">分类与标签</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                    {{ form.category }}
+                </div>
+                <div class="field">
+                    <span class="form-label">{{ form.tags.label }}</span>
+                    <div class="tag-pick">{{ form.tags }}</div>
+                </div>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">合集归属(可选)</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.collection.id_for_label }}">{{ form.collection.label }}</label>
+                    {{ form.collection }}
+                    {% if form.collection.help_text %}<span class="field-help">{{ form.collection.help_text }}</span>{% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.order_in_collection.id_for_label }}">{{ form.order_in_collection.label }}</label>
+                    {{ form.order_in_collection }}
+                    {% if form.order_in_collection.help_text %}<span class="field-help">{{ form.order_in_collection.help_text }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">封面图(可选)</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
+                    {{ form.cover }}
+                    <span class="field-help">不自动从 zip 提取;留空可在编辑页再设。</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">解压并创建</button>
+        <a href="{% url 'manage:post_list' %}" class="btn btn-ghost">取消</a>
+    </div>
+</form>
+
+<script>
+    // 拖拽上传(复用单 md 上传页逻辑)
+    (function () {
+        var dz = document.getElementById('dropZone');
+        var input = dz && dz.querySelector('input[type=file]');
+        if (!dz || !input) return;
+        dz.addEventListener('click', function (e) {
+            if (e.target !== input) input.click();
+        });
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            dz.addEventListener(ev, function (e) {
+                e.preventDefault(); e.stopPropagation();
+                dz.classList.add('is-drag');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (ev) {
+            dz.addEventListener(ev, function (e) {
+                e.preventDefault(); e.stopPropagation();
+                dz.classList.remove('is-drag');
+            });
+        });
+        dz.addEventListener('drop', function (e) {
+            if (e.dataTransfer.files && e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+            }
+        });
+        input.addEventListener('change', function () {
+            if (input.files && input.files[0]) {
+                dz.classList.add('has-file');
+            }
+        });
+    })();
+</script>
+{% endblock %}

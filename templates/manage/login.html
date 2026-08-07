@@ -1,0 +1,37 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}登录 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block content %}
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-brand">
+            <span class="brand-mark">{{ SITE_NAME|slice:":1" }}</span>
+            <h1>{{ SITE_NAME }} <em>后台</em></h1>
+            <p class="login-sub">请使用账号登录以继续</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'manage:login' %}" class="login-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <label class="form-label">用户名</label>
+            <input type="text" name="username" class="form-input" autofocus
+                   placeholder="用户名" required autocomplete="username">
+            <label class="form-label">密码</label>
+            <input type="password" name="password" class="form-input"
+                   placeholder="密码" required autocomplete="current-password">
+            <button type="submit" class="btn btn-primary btn-block">登录</button>
+        </form>
+
+        <div class="login-foot">
+            <a href="{% url 'blog:index' %}">← 返回前台</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block topbar_title %}登录{% endblock %}

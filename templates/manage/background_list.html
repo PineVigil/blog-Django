@@ -1,0 +1,81 @@
+{% extends 'manage/base.html' %}
+{% load static %}
+
+{% block title %}背景图库 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}背景图库{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">背景图库</h1>
+        <p class="page-sub">上传可用于首页 Hero 区域的图片。同一时间只会有一张处于「当前启用」状态。</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'manage:hero_edit' %}" class="btn btn-ghost btn-sm">去 Hero 配置</a>
+        <a href="{% url 'manage:background_new' %}" class="btn btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            上传背景图
+        </a>
+    </div>
+</section>
+
+<div class="card">
+    {% if page_obj.object_list %}
+    <div class="bg-grid">
+        {% for obj in page_obj.object_list %}
+        <div class="bg-card {% if obj.is_active %}active{% endif %}">
+            <div class="bg-thumb">
+                {% if obj.image %}
+                <img src="{{ obj.image.url }}" alt="{{ obj.title }}">
+                {% else %}
+                <div class="bg-empty">无图</div>
+                {% endif %}
+                {% if obj.is_active %}
+                <span class="badge badge-ok bg-badge">当前启用</span>
+                {% endif %}
+            </div>
+            <div class="bg-info">
+                <div class="bg-title">{{ obj.title|default:'(未命名)' }}</div>
+                <div class="bg-meta">
+                    <span>#{{ obj.pk }}</span>
+                    <span>·</span>
+                    <span>{{ obj.uploaded_at|date:'Y-m-d H:i' }}</span>
+                    {% if obj.image %}
+                    <span>·</span>
+                    <span>{{ obj.image.size|filesizeformat }}</span>
+                    {% endif %}
+                </div>
+                <div class="bg-actions">
+                    <a href="{% url 'manage:background_update' obj.pk %}" class="btn btn-ghost btn-xs">编辑</a>
+                    {% if not obj.is_active %}
+                    <form method="post" action="{% url 'manage:background_set_active' obj.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-xs">设为当前</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'manage:background_delete' obj.pk %}" style="display:inline;"
+                        data-confirm="确定删除背景图「{{ obj.title|default:'#'|add:obj.pk }}」?关联的 Hero 配置引用将被清空。">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-xs">删除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    {% include 'manage/_pagination.html' %}
+    {% endif %}
+    {% else %}
+    <div class="empty-card">
+        <div class="empty-illustration">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        </div>
+        <p>还没有背景图。上传一张,然后在「首页 Hero 配置」里选择即可。</p>
+        <a href="{% url 'manage:background_new' %}" class="btn btn-primary btn-sm">上传第一张背景图</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

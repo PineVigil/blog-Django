@@ -1,0 +1,103 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}文章 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}文章管理{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">文章管理</h1>
+        <p class="page-sub">共 {{ page_obj.paginator.count }} 篇文章。</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'manage:post_upload_zip' %}" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            上传 .zip
+        </a>
+        <a href="{% url 'manage:post_upload_md' %}" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            上传 .md
+        </a>
+        <a href="{% url 'manage:post_create' %}" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            写文章
+        </a>
+    </div>
+</section>
+
+<form class="filter-bar" method="get" action="{% url 'manage:post_list' %}">
+    <input type="search" name="q" value="{{ q }}" class="form-input" placeholder="搜索标题或正文……" autocomplete="off">
+    <select name="status" class="form-input">
+        <option value="">全部状态</option>
+        <option value="published" {% if status == 'published' %}selected{% endif %}>已发布</option>
+        <option value="draft" {% if status == 'draft' %}selected{% endif %}>草稿</option>
+        <option value="pinned" {% if status == 'pinned' %}selected{% endif %}>已置顶</option>
+    </select>
+    <select name="cat" class="form-input">
+        <option value="">全部分类</option>
+        {% for c in categories %}
+        <option value="{{ c.pk }}" {% if cat == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-ghost btn-sm">筛选</button>
+    {% if q or status or cat %}
+    <a href="{% url 'manage:post_list' %}" class="btn btn-link btn-sm">清空</a>
+    {% endif %}
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="col-title">标题</th>
+                <th class="col-cat">分类</th>
+                <th class="col-state">状态</th>
+                <th class="col-views">浏览</th>
+                <th class="col-time">发布时间</th>
+                <th class="col-ops">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in page_obj %}
+            <tr>
+                <td class="col-title">
+                    {% if p.is_pinned %}<span class="badge badge-pin" title="置顶">★</span>{% endif %}
+                    <a href="{% url 'manage:post_update' p.pk %}" class="row-title">{{ p.title }}</a>
+                    {% if not p.is_published %}<span class="badge badge-draft">草稿</span>{% endif %}
+                </td>
+                <td class="col-cat">{% if p.category %}<span class="chip">{{ p.category.name }}</span>{% else %}<span class="text-mute">—</span>{% endif %}</td>
+                <td class="col-state">
+                    {% if p.is_published %}
+                    <span class="badge badge-ok">已发布</span>
+                    {% else %}
+                    <span class="badge badge-draft">草稿</span>
+                    {% endif %}
+                </td>
+                <td class="col-views text-mute">{{ p.views }}</td>
+                <td class="col-time text-mute">{{ p.published_time|date:'Y-m-d H:i' }}</td>
+                <td class="col-ops">
+                    <a href="{% url 'manage:post_update' p.pk %}" class="btn btn-link btn-sm">编辑</a>
+                    <a href="{% url 'blog:post_detail' p.slug %}" target="_blank" class="btn btn-link btn-sm">查看</a>
+                    <form method="post" action="{% url 'manage:post_toggle' p.pk 'is_published' %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm">
+                            {% if p.is_published %}下架{% else %}发布{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'manage:post_delete' p.pk %}" class="inline-form"
+                          data-confirm="确定删除文章「{{ p.title }}」吗?此操作不可撤销。">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty-row">没有匹配的文章。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'manage/_pagination.html' %}
+{% endblock %}

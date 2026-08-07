@@ -1,0 +1,89 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}合集 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}合集管理{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">合集管理</h1>
+        <p class="page-sub">
+            共 {{ page_obj.paginator.count }} 个合集。合集用于把同主题的多篇文章(比如一本书的读书笔记)按顺序组织起来。
+        </p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'manage:collection_new' %}" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+            新建合集
+        </a>
+    </div>
+</section>
+
+<form class="filter-bar" method="get" action="{% url 'manage:collection_list' %}">
+    <input type="search" name="q" value="{{ q }}" class="form-input" placeholder="搜索合集名或简介……" autocomplete="off">
+    <button type="submit" class="btn btn-ghost btn-sm">筛选</button>
+    {% if q %}<a href="{% url 'manage:collection_list' %}" class="btn btn-link btn-sm">清空</a>{% endif %}
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width:60px;">封面</th>
+                <th>合集名</th>
+                <th>URL 别名</th>
+                <th>简介</th>
+                <th class="col-count">文章数</th>
+                <th class="col-state">状态</th>
+                <th class="col-time">最近修改</th>
+                <th class="col-ops">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in page_obj.object_list %}
+            <tr>
+                <td>
+                    {% if c.cover %}
+                    <img src="{{ c.cover.url }}" alt="" class="row-cover">
+                    {% else %}
+                    <div class="row-cover row-cover-empty">📚</div>
+                    {% endif %}
+                </td>
+                <td><a href="{% url 'manage:collection_update' c.pk %}" class="row-title">{{ c.name }}</a></td>
+                <td class="text-mute mono">{{ c.slug }}</td>
+                <td class="text-mute">{{ c.description|default:'—' }}</td>
+                <td class="col-count">{{ c.posts.count }}</td>
+                <td class="col-state">
+                    {% if c.is_published %}
+                    <span class="badge badge-ok">已发布</span>
+                    {% else %}
+                    <span class="badge badge-draft">草稿</span>
+                    {% endif %}
+                </td>
+                <td class="col-time text-mute">{{ c.modified_time|date:'Y-m-d H:i' }}</td>
+                <td class="col-ops">
+                    <a href="{% url 'manage:collection_update' c.pk %}" class="btn btn-link btn-sm">编辑</a>
+                    <a href="{{ c.get_absolute_url }}" target="_blank" class="btn btn-link btn-sm">前台</a>
+                    <form method="post" action="{% url 'manage:collection_toggle_publish' c.pk %}?{{ request.GET.urlencode }}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm">
+                            {% if c.is_published %}下架{% else %}发布{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'manage:collection_delete' c.pk %}" class="inline-form"
+                          data-confirm="确定删除合集「{{ c.name }}」吗?旗下文章不会删除,合集关联会被解除。">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="empty-row">还没有合集。去「新建合集」创建第一个,比如「毛选读书笔记」。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'manage/_pagination.html' %}
+{% endblock %}

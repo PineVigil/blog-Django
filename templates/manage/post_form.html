@@ -1,0 +1,115 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}{{ form_title }} · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">{{ form_title }}</h1>
+        <a href="{% url 'manage:post_list' %}" class="back-link">← 返回文章列表</a>
+    </div>
+</section>
+
+<form method="post" enctype="multipart/form-data" class="post-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-grid">
+        <div class="form-main">
+            <div class="field">
+                <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.help_text %}<span class="field-help">{{ form.title.help_text }}</span>{% endif %}
+                {% if form.title.errors %}<span class="field-error">{{ form.title.errors|join:'; ' }}</span>{% endif %}
+            </div>
+
+            <div class="field">
+                <label class="form-label" for="{{ form.content.id_for_label }}">{{ form.content.label }}</label>
+                {{ form.content }}
+                <span class="field-help">支持 Markdown 语法。代码块用 ``` 包裹。</span>
+                {% if form.content.errors %}<span class="field-error">{{ form.content.errors|join:'; ' }}</span>{% endif %}
+            </div>
+
+            <div class="field">
+                <label class="form-label" for="{{ form.excerpt.id_for_label }}">{{ form.excerpt.label }}</label>
+                {{ form.excerpt }}
+                {% if form.excerpt.help_text %}<span class="field-help">{{ form.excerpt.help_text }}</span>{% endif %}
+                {% if form.excerpt.errors %}<span class="field-error">{{ form.excerpt.errors|join:'; ' }}</span>{% endif %}
+            </div>
+        </div>
+
+        <aside class="form-side">
+            <div class="side-card">
+                <h3 class="side-title">发布设置</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.published_time.id_for_label }}">{{ form.published_time.label }}</label>
+                    {{ form.published_time }}
+                </div>
+                <label class="check-line">
+                    {{ form.is_published }}
+                    <span>{{ form.is_published.label }}</span>
+                </label>
+                <label class="check-line">
+                    {{ form.is_pinned }}
+                    <span>{{ form.is_pinned.label }}</span>
+                </label>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">分类与标签</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                    {{ form.category }}
+                </div>
+                <div class="field">
+                    <span class="form-label">{{ form.tags.label }}</span>
+                    <div class="tag-pick">
+                        {{ form.tags }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">合集归属</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.collection.id_for_label }}">{{ form.collection.label }}</label>
+                    {{ form.collection }}
+                    {% if form.collection.help_text %}<span class="field-help">{{ form.collection.help_text }}</span>{% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.order_in_collection.id_for_label }}">{{ form.order_in_collection.label }}</label>
+                    {{ form.order_in_collection }}
+                    {% if form.order_in_collection.help_text %}<span class="field-help">{{ form.order_in_collection.help_text }}</span>{% endif %}
+                    {% if form.order_in_collection.errors %}<span class="field-error">{{ form.order_in_collection.errors|join:'; ' }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="side-card">
+                <h3 class="side-title">封面与别名</h3>
+                <div class="field">
+                    <label class="form-label" for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
+                    {{ form.cover }}
+                    {% if post.cover %}
+                    <img src="{{ post.cover.url }}" alt="当前封面" class="cover-preview">
+                    {% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+                    {{ form.slug }}
+                    {% if form.slug.help_text %}<span class="field-help">{{ form.slug.help_text }}</span>{% endif %}
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">保存</button>
+        <a href="{% url 'manage:post_list' %}" class="btn btn-ghost">取消</a>
+    </div>
+</form>
+{% endblock %}

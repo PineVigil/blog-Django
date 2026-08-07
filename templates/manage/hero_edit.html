@@ -1,0 +1,253 @@
+{% extends 'manage/base.html' %}
+{% load static %}
+
+{% block title %}首页 Hero 配置 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}首页 Hero 配置{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">首页 Hero 配置</h1>
+        <p class="page-sub">
+            修改首页顶部大图区域的文字、动画、背景和按钮。此配置全站仅保留一份(单例)。
+        </p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'blog:index' %}" target="_blank" class="btn btn-ghost btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            前台预览
+        </a>
+    </div>
+</section>
+
+<form method="post" enctype="multipart/form-data" class="post-form">
+    {% csrf_token %}
+
+    <div class="form-grid">
+        <div class="form-main">
+            <!-- 文字内容 -->
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>文字内容</h2>
+                    <span class="panel-hint">高亮词必须出现在主标题中,留空则不高亮。</span>
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_hero_eyebrow">{{ form.hero_eyebrow.label }}</label>
+                    {{ form.hero_eyebrow }}
+                    {% if form.hero_eyebrow.help_text %}
+                    <div class="field-help">{{ form.hero_eyebrow.help_text }}</div>
+                    {% endif %}
+                    {% if form.hero_eyebrow.errors %}
+                    <div class="field-error">{% for e in form.hero_eyebrow.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_hero_title">{{ form.hero_title.label }}</label>
+                    {{ form.hero_title }}
+                    {% if form.hero_title.help_text %}
+                    <div class="field-help">{{ form.hero_title.help_text }}</div>
+                    {% endif %}
+                    {% if form.hero_title.errors %}
+                    <div class="field-error">{% for e in form.hero_title.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_hero_accent_word">{{ form.hero_accent_word.label }}</label>
+                    {{ form.hero_accent_word }}
+                    {% if form.hero_accent_word.help_text %}
+                    <div class="field-help">{{ form.hero_accent_word.help_text }}</div>
+                    {% endif %}
+                    {% if form.hero_accent_word.errors %}
+                    <div class="field-error">{% for e in form.hero_accent_word.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_hero_subtitle">{{ form.hero_subtitle.label }}</label>
+                    {{ form.hero_subtitle }}
+                    {% if form.hero_subtitle.help_text %}
+                    <div class="field-help">{{ form.hero_subtitle.help_text }}</div>
+                    {% endif %}
+                    {% if form.hero_subtitle.errors %}
+                    <div class="field-error">{% for e in form.hero_subtitle.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 动画 & 背景 -->
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>动画 & 背景</h2>
+                    <span class="panel-hint">
+                        背景类型为 image 时,建议先在 <a href="{% url 'manage:background_list' %}">背景图库</a> 上传再选。
+                    </span>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label class="form-label" for="id_hero_animation_choice">{{ form.hero_animation_choice.label }}</label>
+                        {{ form.hero_animation_choice }}
+                        {% if form.hero_animation_choice.errors %}
+                        <div class="field-error">{% for e in form.hero_animation_choice.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label class="form-label" for="id_hero_bg_type">{{ form.hero_bg_type.label }}</label>
+                        {{ form.hero_bg_type }}
+                        {% if form.hero_bg_type.errors %}
+                        <div class="field-error">{% for e in form.hero_bg_type.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="form-label" for="id_hero_bg_overlay">{{ form.hero_bg_overlay.label }}
+                        <em class="value-sample">(当前 {{ form.hero_bg_overlay.value|default:0.35 }})</em>
+                    </label>
+                    {{ form.hero_bg_overlay }}
+                    {% if form.hero_bg_overlay.help_text %}
+                    <div class="field-help">{{ form.hero_bg_overlay.help_text }}</div>
+                    {% endif %}
+                    {% if form.hero_bg_overlay.errors %}
+                    <div class="field-error">{% for e in form.hero_bg_overlay.errors %}{{ e }} {% endfor %}</div>
+                    {% endif %}
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label class="form-label" for="id_hero_bg_image">{{ form.hero_bg_image.label }}</label>
+                        {{ form.hero_bg_image }}
+                        {% if form.hero_bg_image.help_text %}
+                        <div class="field-help">{{ form.hero_bg_image.help_text }}</div>
+                        {% endif %}
+                        {% if form.hero_bg_image.errors %}
+                        <div class="field-error">{% for e in form.hero_bg_image.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                        {% if config.hero_bg_image and config.hero_bg_image.image %}
+                        <div class="field-preview">
+                            <img src="{{ config.hero_bg_image.image.url }}" alt="当前背景图预览" />
+                            <span class="preview-caption">当前选中:</span>
+                            <span class="preview-name">{{ config.hero_bg_image }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label class="form-label" for="id_hero_bg_video">{{ form.hero_bg_video.label }}</label>
+                        {{ form.hero_bg_video }}
+                        {% if form.hero_bg_video.help_text %}
+                        <div class="field-help">{{ form.hero_bg_video.help_text }}</div>
+                        {% endif %}
+                        {% if form.hero_bg_video.errors %}
+                        <div class="field-error">{% for e in form.hero_bg_video.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                        {% if config.hero_bg_video %}
+                        <div class="field-preview">
+                            <span class="preview-caption">已上传:</span>
+                            <a href="{{ config.hero_bg_video.url }}" target="_blank">{{ config.hero_bg_video.name }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主按钮 -->
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>主按钮(CTA)</h2>
+                    <span class="panel-hint">Hero 区域最显眼的行动按钮,如「开始阅读」。</span>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label class="form-label" for="id_hero_cta_text">{{ form.hero_cta_text.label }}</label>
+                        {{ form.hero_cta_text }}
+                        {% if form.hero_cta_text.errors %}
+                        <div class="field-error">{% for e in form.hero_cta_text.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label class="form-label" for="id_hero_cta_link">{{ form.hero_cta_link.label }}</label>
+                        {{ form.hero_cta_link }}
+                        {% if form.hero_cta_link.help_text %}
+                        <div class="field-help">{{ form.hero_cta_link.help_text }}</div>
+                        {% endif %}
+                        {% if form.hero_cta_link.errors %}
+                        <div class="field-error">{% for e in form.hero_cta_link.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- 顶栏配色 -->
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>顶栏配色</h2>
+                    <span class="panel-hint">自动模式从壁纸取色自动配深/浅文字;手动模式用你指定的颜色作顶栏背景。</span>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label class="form-label" for="id_header_color_mode">{{ form.header_color_mode.label }}</label>
+                        {{ form.header_color_mode }}
+                        {% if form.header_color_mode.help_text %}
+                        <div class="field-help">{{ form.header_color_mode.help_text }}</div>
+                        {% endif %}
+                        {% if form.header_color_mode.errors %}
+                        <div class="field-error">{% for e in form.header_color_mode.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label class="form-label" for="id_header_color">{{ form.header_color.label }}</label>
+                        {{ form.header_color }}
+                        {% if form.header_color.help_text %}
+                        <div class="field-help">{{ form.header_color.help_text }}</div>
+                        {% endif %}
+                        {% if form.header_color.errors %}
+                        <div class="field-error">{% for e in form.header_color.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label class="form-label" for="id_header_text_color">{{ form.header_text_color.label }}</label>
+                        {{ form.header_text_color }}
+                        {% if form.header_text_color.help_text %}
+                        <div class="field-help">{{ form.header_text_color.help_text }}</div>
+                        {% endif %}
+                        {% if form.header_text_color.errors %}
+                        <div class="field-error">{% for e in form.header_text_color.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- 首页文字大小(px) -->
+            <div class="panel card">
+                <div class="panel-head">
+                    <h2>首页文字大小</h2>
+                    <span class="panel-hint">单位 px,留空则使用主题默认字号。保存后首页刷新立即生效。</span>
+                </div>
+                <div class="grid-3">
+                    {% for f in font_size_fields %}
+                    <div class="field">
+                        <label class="form-label" for="id_{{ f.name }}">{{ f.label }}</label>
+                        {{ f }}
+                        {% if f.help_text %}
+                        <div class="field-help">{{ f.help_text }}</div>
+                        {% endif %}
+                        {% if f.errors %}
+                        <div class="field-error">{% for e in f.errors %}{{ e }} {% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="card form-submit-card sticky">
+                <div class="submit-head">
+                    <h3>保存配置</h3>
+                    <span class="panel-hint">保存后立即生效,前台刷新即可看到。</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    保存并生效
+                </button>
+                <a href="{% url 'manage:dashboard' %}" class="btn btn-ghost btn-block">返回仪表盘</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

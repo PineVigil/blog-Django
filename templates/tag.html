@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}标签 · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container content">
+<header class="page-header">
+    <h1 class="page-title">标签</h1>
+    <p class="page-subtitle">共 {{ tags|length }} 个标签</p>
+</header>
+
+{% if tags %}
+<div class="tag-cloud">
+    {% for tag in tags %}
+    <a class="tag-cloud-item" href="{{ tag.get_absolute_url }}" data-count="{{ tag.post_count }}">#{{ tag.name }}<sup>{{ tag.post_count }}</sup></a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>暂无标签</h2>
+    <p>还没有创建任何标签。</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}

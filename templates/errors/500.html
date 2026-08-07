@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}500 · 服务器错误 · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="container content">
+<div class="empty-state error-state">
+    <h1 class="error-code">500</h1>
+    <h2>服务器内部错误</h2>
+    <p>出了点小问题,请稍后再试。</p>
+    <p><a href="{% url 'blog:index' %}">← 返回首页</a></p>
+</div>
+</div>
+{% endblock %}

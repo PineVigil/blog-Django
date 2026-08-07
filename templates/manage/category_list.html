@@ -1,0 +1,65 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}分类 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}分类管理{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">分类管理</h1>
+        <p class="page-sub">共 {{ page_obj.paginator.count }} 个分类。</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'manage:category_create' %}" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            新建分类
+        </a>
+    </div>
+</section>
+
+<form class="filter-bar" method="get" action="{% url 'manage:category_list' %}">
+    <input type="search" name="q" value="{{ q }}" class="form-input" placeholder="搜索分类名或描述……" autocomplete="off">
+    <button type="submit" class="btn btn-ghost btn-sm">筛选</button>
+    {% if q %}<a href="{% url 'manage:category_list' %}" class="btn btn-link btn-sm">清空</a>{% endif %}
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>URL 别名</th>
+                <th>描述</th>
+                <th class="col-count">文章数</th>
+                <th class="col-time">创建时间</th>
+                <th class="col-ops">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in page_obj %}
+            <tr>
+                <td><a href="{% url 'manage:category_update' c.pk %}" class="row-title">{{ c.name }}</a></td>
+                <td class="text-mute mono">{{ c.slug }}</td>
+                <td class="text-mute">{{ c.description|default:'—' }}</td>
+                <td class="col-count">{{ c.post_count_total }}</td>
+                <td class="col-time text-mute">{{ c.created_time|date:'Y-m-d' }}</td>
+                <td class="col-ops">
+                    <a href="{% url 'manage:category_update' c.pk %}" class="btn btn-link btn-sm">编辑</a>
+                    <a href="{% url 'blog:category' c.slug %}" target="_blank" class="btn btn-link btn-sm">查看</a>
+                    <form method="post" action="{% url 'manage:category_delete' c.pk %}" class="inline-form"
+                          data-confirm="确定删除分类「{{ c.name }}」吗?其下文章的分类将被置空。">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty-row">还没有分类。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'manage/_pagination.html' %}
+{% endblock %}

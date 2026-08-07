@@ -1,0 +1,63 @@
+{% extends 'manage/base.html' %}
+
+{% block title %}标签 · {{ SITE_NAME }} 后台{% endblock %}
+
+{% block topbar_title %}标签管理{% endblock %}
+
+{% block content %}
+<section class="page-head">
+    <div>
+        <h1 class="page-title">标签管理</h1>
+        <p class="page-sub">共 {{ page_obj.paginator.count }} 个标签。</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'manage:tag_create' %}" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            新建标签
+        </a>
+    </div>
+</section>
+
+<form class="filter-bar" method="get" action="{% url 'manage:tag_list' %}">
+    <input type="search" name="q" value="{{ q }}" class="form-input" placeholder="搜索标签名……" autocomplete="off">
+    <button type="submit" class="btn btn-ghost btn-sm">筛选</button>
+    {% if q %}<a href="{% url 'manage:tag_list' %}" class="btn btn-link btn-sm">清空</a>{% endif %}
+</form>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>URL 别名</th>
+                <th class="col-count">文章数</th>
+                <th class="col-time">创建时间</th>
+                <th class="col-ops">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in page_obj %}
+            <tr>
+                <td><a href="{% url 'manage:tag_update' t.pk %}" class="row-title">{{ t.name }}</a></td>
+                <td class="text-mute mono">{{ t.slug }}</td>
+                <td class="col-count">{{ t.post_count_total }}</td>
+                <td class="col-time text-mute">{{ t.created_time|date:'Y-m-d' }}</td>
+                <td class="col-ops">
+                    <a href="{% url 'manage:tag_update' t.pk %}" class="btn btn-link btn-sm">编辑</a>
+                    <a href="{% url 'blog:tag' t.slug %}" target="_blank" class="btn btn-link btn-sm">查看</a>
+                    <form method="post" action="{% url 'manage:tag_delete' t.pk %}" class="inline-form"
+                          data-confirm="确定删除标签「{{ t.name }}」吗?">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link btn-sm danger">删除</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="empty-row">还没有标签。</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'manage/_pagination.html' %}
+{% endblock %}

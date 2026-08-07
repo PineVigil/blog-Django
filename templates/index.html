@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load blog_tags %}
+
+{% block title %}{% if category %}{{ category.name }} · {{ SITE_NAME }}{% elif tag %}{{ tag.name }} · {{ SITE_NAME }}{% else %}{{ SITE_NAME }} · {{ SITE_DESC }}{% endif %}{% endblock %}
+
+{% block content %}
+{% if font_sizes %}
+<div id="font-sizes" hidden data-sizes='{{ font_sizes_json }}'></div>
+<script>
+(function () {
+    var el = document.getElementById('font-sizes');
+    if (!el) return;
+    var fs = JSON.parse(el.getAttribute('data-sizes') || '{}');
+    for (var p in fs) {
+        if (fs.hasOwnProperty(p)) document.documentElement.style.setProperty('--fs-' + p, fs[p] + 'px');
+    }
+})();
+</script>
+{% endif %}
+{% if not category and not tag %}
+<section class="hero" data-bg-type="{{ hero_config.hero_bg_type }}">
+    <div class="hero-grid" aria-hidden="true"></div>
+
+    {% if hero_config.hero_bg_type == 'blob' %}
+    <div class="hero-blob b1" aria-hidden="true"></div>
+    <div class="hero-blob b2" aria-hidden="true"></div>
+    {% endif %}
+
+    <div class="hero-inner">
+        <div class="hero-eyebrow">{{ hero_config.hero_eyebrow|default:"Journal · 站名" }}</div>
+        <h1 class="hero-title" data-animation="{{ hero_config.hero_animation_choice }}">{% hero_title_with_accent hero_config.hero_title hero_config.hero_accent_word %}</h1>
+        <p class="hero-subtitle">{{ hero_config.hero_subtitle|default:SITE_DESC }}</p>
+        <div class="hero-actions">
+            <a class="btn-hero btn-hero-primary" href="{{ hero_config.hero_cta_link|default:'#posts' }}">
+                <span>{{ hero_config.hero_cta_text|default:"开始阅读" }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+            <a class="btn-hero btn-hero-primary btn-hero-accent" href="{% url 'blog:projects' %}">
+                <span>我的项目</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect x="2" y="6" width="20" height="14" rx="2"></rect></svg>
+            </a>
+        </div>
+    </div>
+    <div class="hero-meta">
+        <span class="scroll-cue">Scroll</span>
+        <span class="hero-counter"><b id="postCounter" data-count="{{ page_obj.paginator.count|default:0 }}">0</b> 篇文章 · 持续更新</span>
+    </div>
+</section>
+{% endif %}
+
+{% if not category and not tag %}
+<!-- ============================================================
+     首页功能卡片区 (Hero 之后, 文章列表之前)
+     6 张卡片, 每张独立视觉风格
+============================================================ -->
+<section class="container dashboard" aria-label="功能卡片">
+
+    <!-- 第一行: 时钟 + 天气 + 快捷导航 -->
+    <div class="dash-grid dash-grid-3">
+
+        <!-- ① 实时时钟(仪器面板风) -->
+        <div class="dash-card card-clock">
+            <div class="card-clock-inner">
+                <div class="clock-label" id="clockGreeting">Good Day</div>
+                <div class="clock-time" id="clockTime">--:--:--</div>
+                <div class="clock-meta">
+                    <div class="clock-date" id="clockDate">----/--/--</div>
+                    <div class="clock-weekday" id="clockWeekday">—</div>
+                </div>
+            </div>
+            <div class="card-clock-ambient" aria-hidden="true"></div>
+        </div>
+
+        <!-- ② 天气(仪器面板风: 顶部橙脊线 + 标签行 + 图标温度 + 内框) -->
+        <div class="dash-card card-weather">
+            <div class="weather-label">Weather</div>
+            <div class="weather-main">
+                <div class="weather-icon" id="weatherIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                </div>
+                <div class="weather-temp"><span id="weatherTemp">--</span><sup>°C</sup></div>
+            </div>
+            <div class="weather-body">
+                <div class="weather-desc" id="weatherDesc">获取位置中…</div>
+                <div class="weather-loc" id="weatherLoc">📍 定位中</div>
+            </div>
+        </div>
+
+        <!-- ③ 快捷导航(2x2 彩色方格) -->
+        <div class="dash-card card-quick">
+            <div class="quick-grid">
+                <a class="quick-tile q-articles" href="{% url 'blog:archive' %}">
+                    <span class="q-icon">📜</span><span class="q-label">文章</span>
+                </a>
+                <a class="quick-tile q-collections" href="{% url 'blog:collection_list' %}">
+                    <span class="q-icon">📚</span><span class="q-label">合集</span>
+                </a>
+                <a class="quick-tile q-categories" href="{% url 'blog:category_list' %}">
+                    <span class="q-icon">🏷️</span><span class="q-label">分类</span>
+                </a>
+                <a class="quick-tile q-about" href="{% url 'blog:about' %}">
+                    <span class="q-icon">💭</span><span class="q-label">关于</span>
+                </a>
+            </div>
+        </div>
+
+    </div><!-- /dash-grid-3 -->
+
+    <!-- 第二行: 博客统计(复古纸) + 热门文章(工业风) -->
+    <div class="dash-grid dash-grid-57">
+
+        <!-- ④ 博客统计(米色纸张质感 + 复古排版) -->
+        <div class="dash-card card-stats">
+            <div class="stats-label">· 博客小数据 ·</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-num">{{ stats.total_posts }}</div>
+                    <div class="stat-name">篇文章</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{{ stats.total_collections }}</div>
+                    <div class="stat-name">个合集</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{{ stats.total_categories }}</div>
+                    <div class="stat-name">个分类</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">{{ stats.total_comments }}</div>
+                    <div class="stat-name">条评论</div>
+                </div>
+                <div class="stat-item stat-run">
+                    <div class="stat-num">{{ stats.running_days }}</div>
+                    <div class="stat-name">天 · 写作中</div>
+                </div>
+            </div>
+            <div class="stats-footer" aria-hidden="true"></div>
+        </div>
+
+        <!-- ⑤ 热门文章 TOP3(工业粗边框 + 大号序号) -->
+        <div class="dash-card card-hot">
+            <div class="hot-head">
+                <span class="hot-title">🔥 热门 Top 3</span>
+                <span class="hot-sub">按阅读量</span>
+            </div>
+            <ul class="hot-list">
+                {% for post in hot_posts %}
+                <li class="hot-item">
+                    <span class="hot-rank">0{{ forloop.counter }}</span>
+                    <a class="hot-link" href="{{ post.get_absolute_url }}">
+                        <span class="hot-name">{{ post.title }}</span>
+                        <span class="hot-meta">{{ post.published_time|date:"Y-m-d" }} · {{ post.views }} 阅读</span>
+                    </a>
+                </li>
+                {% empty %}
+                <li class="hot-empty">还没有热门文章~</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </div><!-- /dash-grid-57 -->
+
+    <!-- 第三行: 每日金句(引用横幅) -->
+    <div class="dash-card card-quote">
+        <a class="quote-all-link" href="{% url 'blog:post_detail' slug='daily-quotes' %}">全部金句 →</a>
+        <div class="quote-mark" aria-hidden="true">“</div>
+        <blockquote class="quote-body">{{ daily_quote.text }}</blockquote>
+        {% if daily_quote.source_url %}
+        <a class="quote-source" href="{{ daily_quote.source_url }}">— 来自《{{ daily_quote.source_title }}》</a>
+        {% else %}
+        <div class="quote-source">— 今日小语 · 刷新随机变化</div>
+        {% endif %}
+    </div>
+
+</section>
+{% endif %}
+
+<div class="container content" id="posts">
+{% if category or tag %}
+<div class="list-header">
+    <h1 class="list-title">
+        {% if category %}分类 · <em>{{ category.name }}</em>{% endif %}
+        {% if tag %}标签 · <em>{{ tag.name }}</em>{% endif %}
+    </h1>
+    <a class="back-link" href="{% url 'blog:index' %}">返回首页</a>
+</div>
+{% endif %}
+
+{% if page_obj %}
+    <ul class="post-grid">
+    {% for post in page_obj %}
+        <li class="post-item">
+            <article class="post-card">
+                <div class="post-card-num">{{ forloop.counter|add:page_obj.start_index|add:'-1'|stringformat:"02d" }} / {{ page_obj.paginator.count|stringformat:"02d" }}</div>
+                <header class="post-card-header">
+                    <h2 class="post-card-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                        {% if post.is_pinned %}<span class="pin-badge" title="置顶">Pinned</span>{% endif %}
+                    </h2>
+                    <div class="post-meta">
+                        <time datetime="{{ post.published_time|date:'c' }}">{{ post.published_time|date:'Y-m-d' }}</time>
+                        {% if post.category %}<span class="sep">·</span><a class="meta-cat" href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>{% endif %}
+                        {% for tag in post.tags.all %}<span class="sep">·</span><a class="meta-tag" href="{{ tag.get_absolute_url }}">{{ tag.name }}</a>{% endfor %}
+                        <span class="sep">·</span><span>{{ post.views }} 阅读</span>
+                        {% if post.comment_count %}<span class="sep">·</span><span>{{ post.comment_count }} 评论</span>{% endif %}
+                    </div>
+                </header>
+                <p class="post-card-excerpt">{{ post.excerpt|default:post.content|truncatechars:140 }}</p>
+                <a class="read-more" href="{{ post.get_absolute_url }}">
+                    阅读全文
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </article>
+        </li>
+    {% endfor %}
+    </ul>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="pagination" aria-label="分页">
+        {% if page_obj.has_previous %}
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&amp;q={{ request.GET.q }}{% endif %}">← 上一页</a>
+        {% else %}
+            <span class="page-link disabled">← 上一页</span>
+        {% endif %}
+        <span class="page-info">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&amp;q={{ request.GET.q }}{% endif %}">下一页 →</a>
+        {% else %}
+            <span class="page-link disabled">下一页 →</span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+{% else %}
+    <div class="empty-state">
+        <h2>暂无文章</h2>
+        <p>这里还没有内容,稍后再来看看。</p>
+    </div>
+{% endif %}
+</div>
+{% endblock %}

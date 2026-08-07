@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}分类 · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container content">
+<header class="page-header">
+    <h1 class="page-title">分类</h1>
+    <p class="page-subtitle">共 {{ categories|length }} 个分类</p>
+</header>
+
+{% if categories %}
+<ul class="cat-tag-list">
+    {% for cat in categories %}
+    <li class="cat-tag-item">
+        <a href="{{ cat.get_absolute_url }}">
+            <span class="cat-tag-name">{{ cat.name }}</span>
+            <span class="cat-tag-count">{{ cat.post_count }}</span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="empty-state">
+    <h2>暂无分类</h2>
+    <p>还没有创建任何分类。</p>
+</div>
+{% endif %}
+</div>
+{% endblock %}
